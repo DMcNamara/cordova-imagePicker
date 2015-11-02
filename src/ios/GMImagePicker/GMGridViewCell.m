@@ -8,12 +8,16 @@
 
 #import "GMGridViewCell.h"
 
-
 @interface GMGridViewCell ()
+
+
+
 @end
 
 
 @implementation GMGridViewCell
+
+@synthesize circularProgressView;
 
 static UIFont *titleFont;
 static CGFloat titleHeight;
@@ -86,7 +90,7 @@ static UIColor *disabledColor;
         _videoIcon = [UIImageView new];
         _videoIcon.frame = CGRectMake(x_offset, self.bounds.size.height-titleHeight, self.bounds.size.width-2*x_offset, titleHeight);
         _videoIcon.contentMode = UIViewContentModeLeft;
-        _videoIcon.image = [UIImage imageNamed:@"GMVideoIcon" inBundle:[NSBundle bundleForClass:GMGridViewCell.class] compatibleWithTraitCollection:nil];
+        _videoIcon.image = [UIImage imageNamed:@"GMVideoIcon"];
         _videoIcon.translatesAutoresizingMaskIntoConstraints = NO;
         _videoIcon.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
         [self addSubview:_videoIcon];
@@ -118,13 +122,54 @@ static UIColor *disabledColor;
         [_selectedButton setImage:nil forState:UIControlStateNormal];
         _selectedButton.translatesAutoresizingMaskIntoConstraints = NO;
         _selectedButton.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        [_selectedButton setImage:[UIImage imageNamed:@"GMSelected" inBundle:[NSBundle bundleForClass:GMGridViewCell.class] compatibleWithTraitCollection:nil] forState:UIControlStateSelected];
+        [_selectedButton setImage:[UIImage imageNamed:@"GMSelected"] forState:UIControlStateSelected];
         _selectedButton.hidden = NO;
         _selectedButton.userInteractionEnabled = NO;
         [self addSubview:_selectedButton];
+        
+        // circle progress
+        
+        self.circularProgressView = [[MRCircularProgressView alloc] initWithFrame:CGRectMake(self.bounds.size.width/3, self.bounds.size.height/3, self.bounds.size.width/3, self.bounds.size.height/3)];
+        [self.circularProgressView.stopButton addTarget:self action:@selector(onCircularProgressViewTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
+        //[self.circularProgressView setHidden:true];
+        [self addSubview:self.circularProgressView];
+        
+        
+        _fetch = [UILabel new];
+        _fetch.font = titleFont;
+        _fetch.textColor = titleColor;
+        _fetch.textAlignment = NSTextAlignmentCenter;
+        _fetch.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+        _fetch.text = @""; // removed 'fetching'
+        [self addSubview:_fetch];
+        
     }
     
     return self;
+}
+
+-(void)show_progress{
+    [self.circularProgressView setHidden:false];
+}
+
+-(void)hide_progress{
+    [self.circularProgressView setHidden:true];
+}
+
+-(void)set_progress:(float)value animated:(BOOL)animated{
+    [self.circularProgressView setProgress:value animated:animated];
+}
+
+-(void)show_fetching{
+    _fetch.hidden = false;
+}
+
+-(void)hide_fetching{
+    _fetch.hidden = true;
+}
+
+- (void)onCircularProgressViewTouchUpInside:(id)sender {
+    self.circularProgressView.progress = 0;
 }
 
 //Required to resize the CAGradientLayer because it does not support auto resizing.
